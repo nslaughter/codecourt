@@ -2,6 +2,10 @@
 
 A modern coding judge system that runs in Kubernetes. CodeCourt is written in Go, uses Kafka for messaging, and PostgreSQL for persistence. It provides a platform for hosting coding competitions, practice sessions, and educational exercises.
 
+> **⚠️ WARNING**
+>
+> This repository was developed primarily with the objective of getting quick results with AI while a human guided towards architectural ideas, project structure, and testing methods. As a result, the repository has a long way to go in terms of human validation and testing with realistic flows. It should not be considered production-ready without thorough review and additional testing.
+
 ## Quick Start
 
 ### Prerequisites
