@@ -357,6 +357,10 @@ kube-prometheus-stack:
             path: /var/lib/grafana/dashboards/codecourt
     dashboards:
       codecourt:
+        codecourt-overview:
+          file: dashboards/codecourt-overview.json
+        submission-judging-dashboard:
+          file: dashboards/submission-judging-dashboard.json
         kafka-overview:
           json: |
             {
