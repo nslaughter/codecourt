@@ -1,4 +1,4 @@
-{{- if and .Values.kube-prometheus-stack.enabled .Values.apiGateway.enabled }}
+{{- if and (index .Values "kube-prometheus-stack" "enabled") .Values.apiGateway.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -20,7 +20,7 @@ spec:
     - {{ .Release.Namespace }}
 ---
 {{- end }}
-{{- if and .Values.kube-prometheus-stack.enabled .Values.userService.enabled }}
+{{- if and (index .Values "kube-prometheus-stack" "enabled") .Values.userService.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -42,7 +42,7 @@ spec:
     - {{ .Release.Namespace }}
 ---
 {{- end }}
-{{- if and .Values.kube-prometheus-stack.enabled .Values.problemService.enabled }}
+{{- if and (index .Values "kube-prometheus-stack" "enabled") .Values.problemService.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -64,7 +64,7 @@ spec:
     - {{ .Release.Namespace }}
 ---
 {{- end }}
-{{- if and .Values.kube-prometheus-stack.enabled .Values.submissionService.enabled }}
+{{- if and (index .Values "kube-prometheus-stack" "enabled") .Values.submissionService.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -86,7 +86,7 @@ spec:
     - {{ .Release.Namespace }}
 ---
 {{- end }}
-{{- if and .Values.kube-prometheus-stack.enabled .Values.judgingService.enabled }}
+{{- if and (index .Values "kube-prometheus-stack" "enabled") .Values.judgingService.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -108,7 +108,7 @@ spec:
     - {{ .Release.Namespace }}
 ---
 {{- end }}
-{{- if and .Values.kube-prometheus-stack.enabled .Values.notificationService.enabled }}
+{{- if and (index .Values "kube-prometheus-stack" "enabled") .Values.notificationService.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:

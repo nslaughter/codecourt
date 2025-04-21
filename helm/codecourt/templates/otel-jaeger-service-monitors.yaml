@@ -1,0 +1,43 @@
+{{- if and (index .Values "kube-prometheus-stack" "enabled") .Values.otelCollector.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "codecourt.fullname" . }}-otel-collector
+  labels:
+    {{- include "codecourt.labels" . | nindent 4 }}
+    app.kubernetes.io/component: otel-collector
+spec:
+  selector:
+    matchLabels:
+      {{- include "codecourt.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: otel-collector
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: 15s
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+{{- end }}
+---
+{{- if and (index .Values "kube-prometheus-stack" "enabled") .Values.jaeger.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "codecourt.fullname" . }}-jaeger
+  labels:
+    {{- include "codecourt.labels" . | nindent 4 }}
+    app.kubernetes.io/component: jaeger
+spec:
+  selector:
+    matchLabels:
+      {{- include "codecourt.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: jaeger
+  endpoints:
+  - port: query-http
+    path: /metrics
+    interval: 15s
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+{{- end }}
