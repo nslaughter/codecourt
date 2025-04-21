@@ -5,5 +5,8 @@ dependencies:
 - name: strimzi-kafka-operator
   repository: https://strimzi.io/charts/
   version: 0.38.0
-digest: sha256:2389fd5a9c864afcfcebde6d24ac885c63e6062c4db18e0a9cb16e8a084e4363
-generated: "2025-04-20T21:33:50.915905-05:00"
+- name: kube-prometheus-stack
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 55.5.0
+digest: sha256:a6313d7ca4022c0fdcfb7677d04b6933b8f8e2834118b882805f2f9cb3f42670
+generated: "2025-04-21T09:17:47.70074-05:00"
