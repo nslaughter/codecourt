@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "codecourt.fullname" . }}-jaeger
+  labels:
+    {{- include "codecourt.labels" . | nindent 4 }}
+    app.kubernetes.io/component: jaeger
+spec:
+  replicas: {{ .Values.jaeger.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "codecourt.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: jaeger
+  template:
+    metadata:
+      labels:
+        {{- include "codecourt.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: jaeger
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "codecourt.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}-jaeger
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.jaeger.image.repository }}:{{ .Values.jaeger.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: query-http
+              containerPort: 16686
+              protocol: TCP
+            - name: collector-http
+              containerPort: 14268
+              protocol: TCP
+            - name: collector-grpc
+              containerPort: 14250
+              protocol: TCP
+            - name: agent-compact
+              containerPort: 6831
+              protocol: UDP
+            - name: agent-binary
+              containerPort: 6832
+              protocol: UDP
+            - name: agent-config
+              containerPort: 5778
+              protocol: TCP
+            - name: zipkin
+              containerPort: 9411
+              protocol: TCP
+          env:
+            - name: COLLECTOR_ZIPKIN_HOST_PORT
+              value: ":9411"
+            - name: SPAN_STORAGE_TYPE
+              value: "{{ .Values.jaeger.storage.type }}"
+            {{- if eq .Values.jaeger.storage.type "elasticsearch" }}
+            - name: ES_SERVER_URLS
+              value: "{{ .Values.jaeger.storage.elasticsearch.url }}"
+            {{- end }}
+          resources:
+            {{- toYaml .Values.jaeger.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
