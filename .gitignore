@@ -19,6 +19,9 @@
 
 # Go workspace file
 go.work
+
+# Helm chart dependencies
+helm/*/charts/*.tgz
 go.work.sum
 
 # env file
