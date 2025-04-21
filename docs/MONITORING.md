@@ -1,16 +1,18 @@
 # CodeCourt Monitoring Guide
 
-This document provides information on how to use the monitoring capabilities integrated with CodeCourt using the kube-prometheus-stack.
+This document provides information on how to use the monitoring and observability capabilities integrated with CodeCourt using the kube-prometheus-stack, OpenTelemetry, and Jaeger.
 
 ## Overview
 
-CodeCourt integrates the kube-prometheus-stack, which provides a robust monitoring solution for Kubernetes clusters and applications. The stack includes metrics collection and visualization, but does not include distributed tracing capabilities. The monitoring components include:
+CodeCourt integrates the kube-prometheus-stack, which provides a robust monitoring solution for Kubernetes clusters and applications. The monitoring stack has been enhanced with distributed tracing capabilities using OpenTelemetry and Jaeger. The observability components include:
 
 - **Prometheus**: A time-series database for storing metrics
 - **Grafana**: A visualization tool for metrics
 - **AlertManager**: A tool for handling alerts
 - **Node Exporter**: Collects hardware and OS metrics
 - **kube-state-metrics**: Collects metrics about the state of Kubernetes objects
+- **OpenTelemetry Collector**: Collects and processes telemetry data (traces, metrics)
+- **Jaeger**: Distributed tracing system for monitoring and troubleshooting microservices
 
 ## Accessing the Monitoring Tools
 
@@ -51,6 +53,19 @@ kubectl port-forward -n codecourt svc/codecourt-kube-prometheus-alertmanager 909
 ```
 
 Then open your browser and navigate to [http://localhost:9093](http://localhost:9093)
+
+### Jaeger
+
+To access the Jaeger UI:
+
+```bash
+# Port-forward the Jaeger service
+kubectl port-forward -n codecourt svc/codecourt-jaeger 16686:16686
+```
+
+Then open your browser and navigate to [http://localhost:16686](http://localhost:16686)
+
+Alternatively, if you've configured the Jaeger ingress, you can access it at [http://jaeger.codecourt.local](http://jaeger.codecourt.local)
 
 ## Available Dashboards
 
@@ -169,6 +184,31 @@ kube-prometheus-stack:
           memory: 2Gi
 ```
 
+## Distributed Tracing
+
+CodeCourt implements distributed tracing using OpenTelemetry and Jaeger. For detailed information, see the [DISTRIBUTED_TRACING.md](./DISTRIBUTED_TRACING.md) document.
+
+### Trace Collection
+
+Each CodeCourt service is instrumented with OpenTelemetry to generate traces. The traces are collected by the OpenTelemetry Collector and sent to Jaeger for storage and visualization.
+
+### Viewing Traces
+
+To view traces, access the Jaeger UI as described above. The UI allows you to:
+
+- Search for traces by service, operation, tags, and time range
+- View detailed trace information including spans, tags, and logs
+- Compare traces side by side
+- Analyze trace statistics
+
+### Trace Context Propagation
+
+CodeCourt services propagate trace context using the W3C Trace Context standard. This allows traces to flow across service boundaries, providing end-to-end visibility of requests.
+
+### Integration with Metrics
+
+Traces can be correlated with metrics in Grafana using the Trace ID. This allows you to navigate from a metric spike to the corresponding traces, helping to identify the root cause of issues.
+
 ## Troubleshooting
 
 ### Common Issues
@@ -199,6 +239,12 @@ kubectl logs -n codecourt -l app.kubernetes.io/name=grafana
 
 # AlertManager logs
 kubectl logs -n codecourt -l app=alertmanager
+
+# Jaeger logs
+kubectl logs -n codecourt -l app.kubernetes.io/component=jaeger
+
+# OpenTelemetry Collector logs
+kubectl logs -n codecourt -l app.kubernetes.io/component=otel-collector
 ```
 
 ## Best Practices
