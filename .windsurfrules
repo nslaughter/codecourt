@@ -1,0 +1,24 @@
+
+## Development workflow
+* Do not write additional code beyond what the user has requested.
+* Write tests for all new code.
+* Run tests and code analysis before committing.
+* Use Git with conventional commits for complete development units.
+
+## Go code and tests
+* Go unit tests should be written in the table-driven style.
+* Go code and tests should follow the Go code style guide and best practices.
+* Include integration tests for all new code.
+* Write end-to-end tests for all service endpoints.
+* Use Go modules for dependency management.
+* Prefer Go 1.21+ features and best practices.
+* Define structs and interfaces where they're used and don't create separate packages for types or models.
+
+## Kubernetes
+* Use Helm charts for Kubernetes deployment and management.
+* Use Kubernetes best practices for resource management and security.
+
+## Security
+* Use best practices for security in Go code and Kubernetes.
+* Use secure coding practices in Go code.
+* Use secure coding practices in Kubernetes.
