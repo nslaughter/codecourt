@@ -69,6 +69,7 @@ For a detailed architecture explanation, see [ARCHITECTURE.md](docs/ARCHITECTURE
 - **User Management**: Authentication, profiles, and progress tracking
 - **Competitions**: Host time-limited coding competitions with leaderboards
 - **Notifications**: Multi-channel notifications for system events
+- **Robust Monitoring**: Integrated Prometheus and Grafana stack for metrics and dashboards (no tracing)
 
 ## Deployment
 
@@ -83,6 +84,15 @@ helm install codecourt codecourt/codecourt --namespace codecourt --create-namesp
 ```
 
 For production deployment considerations, see [DEPLOYMENT.md](docs/DEPLOYMENT.md).
+
+## Documentation
+
+- [ARCHITECTURE.md](docs/ARCHITECTURE.md): Detailed system architecture and component interactions
+- [DEVELOPMENT.md](docs/DEVELOPMENT.md): Development environment setup and workflow
+- [DEPLOYMENT.md](docs/DEPLOYMENT.md): Production deployment guidelines and best practices
+- [CONTRIBUTING.md](docs/CONTRIBUTING.md): Guidelines for project contributors
+- [END_TO_END_TESTING.md](docs/END_TO_END_TESTING.md): Guide for running end-to-end tests
+- [MONITORING.md](docs/MONITORING.md): Guide for using the Prometheus and Grafana monitoring stack (metrics only, no tracing)
 
 ## Development Approach
 

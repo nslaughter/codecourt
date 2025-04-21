@@ -1,0 +1,131 @@
+{{- if and .Values.kube-prometheus-stack.enabled .Values.apiGateway.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "codecourt.fullname" . }}-api-gateway
+  labels:
+    {{- include "codecourt.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api-gateway
+spec:
+  selector:
+    matchLabels:
+      {{- include "codecourt.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: api-gateway
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+---
+{{- end }}
+{{- if and .Values.kube-prometheus-stack.enabled .Values.userService.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "codecourt.fullname" . }}-user-service
+  labels:
+    {{- include "codecourt.labels" . | nindent 4 }}
+    app.kubernetes.io/component: user-service
+spec:
+  selector:
+    matchLabels:
+      {{- include "codecourt.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: user-service
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+---
+{{- end }}
+{{- if and .Values.kube-prometheus-stack.enabled .Values.problemService.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "codecourt.fullname" . }}-problem-service
+  labels:
+    {{- include "codecourt.labels" . | nindent 4 }}
+    app.kubernetes.io/component: problem-service
+spec:
+  selector:
+    matchLabels:
+      {{- include "codecourt.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: problem-service
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+---
+{{- end }}
+{{- if and .Values.kube-prometheus-stack.enabled .Values.submissionService.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "codecourt.fullname" . }}-submission-service
+  labels:
+    {{- include "codecourt.labels" . | nindent 4 }}
+    app.kubernetes.io/component: submission-service
+spec:
+  selector:
+    matchLabels:
+      {{- include "codecourt.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: submission-service
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+---
+{{- end }}
+{{- if and .Values.kube-prometheus-stack.enabled .Values.judgingService.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "codecourt.fullname" . }}-judging-service
+  labels:
+    {{- include "codecourt.labels" . | nindent 4 }}
+    app.kubernetes.io/component: judging-service
+spec:
+  selector:
+    matchLabels:
+      {{- include "codecourt.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: judging-service
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+---
+{{- end }}
+{{- if and .Values.kube-prometheus-stack.enabled .Values.notificationService.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "codecourt.fullname" . }}-notification-service
+  labels:
+    {{- include "codecourt.labels" . | nindent 4 }}
+    app.kubernetes.io/component: notification-service
+spec:
+  selector:
+    matchLabels:
+      {{- include "codecourt.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: notification-service
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+{{- end }}

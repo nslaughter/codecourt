@@ -305,6 +305,498 @@ judgingService:
 # Notification Service
 notificationService:
   enabled: true
+
+# Prometheus Monitoring Stack
+kube-prometheus-stack:
+  enabled: true
+  # Prometheus specific configuration
+  prometheus:
+    enabled: true
+    serviceMonitor:
+      selectors:
+        release: codecourt
+    prometheusSpec:
+      podMonitorSelectorNilUsesHelmValues: false
+      serviceMonitorSelectorNilUsesHelmValues: false
+      ruleSelectorNilUsesHelmValues: false
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            storageClassName: standard
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 10Gi
+      resources:
+        requests:
+          cpu: 200m
+          memory: 512Mi
+        limits:
+          cpu: 1000m
+          memory: 2Gi
+  
+  # Grafana specific configuration
+  grafana:
+    enabled: true
+    adminPassword: admin
+    persistence:
+      enabled: true
+      storageClassName: standard
+      size: 5Gi
+    dashboardProviders:
+      dashboardproviders.yaml:
+        apiVersion: 1
+        providers:
+        - name: 'codecourt'
+          orgId: 1
+          folder: 'CodeCourt'
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/codecourt
+    dashboards:
+      codecourt:
+        kafka-overview:
+          json: |
+            {
+              "annotations": {
+                "list": [
+                  {
+                    "builtIn": 1,
+                    "datasource": "-- Grafana --",
+                    "enable": true,
+                    "hide": true,
+                    "iconColor": "rgba(0, 211, 255, 1)",
+                    "name": "Annotations & Alerts",
+                    "type": "dashboard"
+                  }
+                ]
+              },
+              "editable": true,
+              "gnetId": null,
+              "graphTooltip": 0,
+              "id": 1,
+              "links": [],
+              "panels": [
+                {
+                  "aliasColors": {},
+                  "bars": false,
+                  "dashLength": 10,
+                  "dashes": false,
+                  "datasource": "Prometheus",
+                  "fieldConfig": {
+                    "defaults": {
+                      "custom": {}
+                    },
+                    "overrides": []
+                  },
+                  "fill": 1,
+                  "fillGradient": 0,
+                  "gridPos": {
+                    "h": 8,
+                    "w": 12,
+                    "x": 0,
+                    "y": 0
+                  },
+                  "hiddenSeries": false,
+                  "id": 2,
+                  "legend": {
+                    "avg": false,
+                    "current": false,
+                    "max": false,
+                    "min": false,
+                    "show": true,
+                    "total": false,
+                    "values": false
+                  },
+                  "lines": true,
+                  "linewidth": 1,
+                  "nullPointMode": "null",
+                  "options": {
+                    "alertThreshold": true
+                  },
+                  "percentage": false,
+                  "pluginVersion": "7.3.7",
+                  "pointradius": 2,
+                  "points": false,
+                  "renderer": "flot",
+                  "seriesOverrides": [],
+                  "spaceLength": 10,
+                  "stack": false,
+                  "steppedLine": false,
+                  "targets": [
+                    {
+                      "expr": "sum(rate(kafka_server_brokertopicmetrics_messagesin_total{topic=~\".*\"}[5m])) by (topic)",
+                      "interval": "",
+                      "legendFormat": "{{topic}}",
+                      "refId": "A"
+                    }
+                  ],
+                  "thresholds": [],
+                  "timeFrom": null,
+                  "timeRegions": [],
+                  "timeShift": null,
+                  "title": "Kafka Messages In Rate",
+                  "tooltip": {
+                    "shared": true,
+                    "sort": 0,
+                    "value_type": "individual"
+                  },
+                  "type": "graph",
+                  "xaxis": {
+                    "buckets": null,
+                    "mode": "time",
+                    "name": null,
+                    "show": true,
+                    "values": []
+                  },
+                  "yaxes": [
+                    {
+                      "format": "short",
+                      "label": null,
+                      "logBase": 1,
+                      "max": null,
+                      "min": null,
+                      "show": true
+                    },
+                    {
+                      "format": "short",
+                      "label": null,
+                      "logBase": 1,
+                      "max": null,
+                      "min": null,
+                      "show": true
+                    }
+                  ],
+                  "yaxis": {
+                    "align": false,
+                    "alignLevel": null
+                  }
+                }
+              ],
+              "schemaVersion": 26,
+              "style": "dark",
+              "tags": [],
+              "templating": {
+                "list": []
+              },
+              "time": {
+                "from": "now-6h",
+                "to": "now"
+              },
+              "timepicker": {},
+              "timezone": "",
+              "title": "Kafka Overview",
+              "uid": "kafka-overview",
+              "version": 1
+            }
+        postgresql-overview:
+          json: |
+            {
+              "annotations": {
+                "list": [
+                  {
+                    "builtIn": 1,
+                    "datasource": "-- Grafana --",
+                    "enable": true,
+                    "hide": true,
+                    "iconColor": "rgba(0, 211, 255, 1)",
+                    "name": "Annotations & Alerts",
+                    "type": "dashboard"
+                  }
+                ]
+              },
+              "editable": true,
+              "gnetId": null,
+              "graphTooltip": 0,
+              "id": 2,
+              "links": [],
+              "panels": [
+                {
+                  "aliasColors": {},
+                  "bars": false,
+                  "dashLength": 10,
+                  "dashes": false,
+                  "datasource": "Prometheus",
+                  "fieldConfig": {
+                    "defaults": {
+                      "custom": {}
+                    },
+                    "overrides": []
+                  },
+                  "fill": 1,
+                  "fillGradient": 0,
+                  "gridPos": {
+                    "h": 8,
+                    "w": 12,
+                    "x": 0,
+                    "y": 0
+                  },
+                  "hiddenSeries": false,
+                  "id": 2,
+                  "legend": {
+                    "avg": false,
+                    "current": false,
+                    "max": false,
+                    "min": false,
+                    "show": true,
+                    "total": false,
+                    "values": false
+                  },
+                  "lines": true,
+                  "linewidth": 1,
+                  "nullPointMode": "null",
+                  "options": {
+                    "alertThreshold": true
+                  },
+                  "percentage": false,
+                  "pluginVersion": "7.3.7",
+                  "pointradius": 2,
+                  "points": false,
+                  "renderer": "flot",
+                  "seriesOverrides": [],
+                  "spaceLength": 10,
+                  "stack": false,
+                  "steppedLine": false,
+                  "targets": [
+                    {
+                      "expr": "pg_stat_database_tup_fetched{datname=~\"codecourt.*\"}",
+                      "interval": "",
+                      "legendFormat": "{{datname}}",
+                      "refId": "A"
+                    }
+                  ],
+                  "thresholds": [],
+                  "timeFrom": null,
+                  "timeRegions": [],
+                  "timeShift": null,
+                  "title": "PostgreSQL Rows Fetched",
+                  "tooltip": {
+                    "shared": true,
+                    "sort": 0,
+                    "value_type": "individual"
+                  },
+                  "type": "graph",
+                  "xaxis": {
+                    "buckets": null,
+                    "mode": "time",
+                    "name": null,
+                    "show": true,
+                    "values": []
+                  },
+                  "yaxes": [
+                    {
+                      "format": "short",
+                      "label": null,
+                      "logBase": 1,
+                      "max": null,
+                      "min": null,
+                      "show": true
+                    },
+                    {
+                      "format": "short",
+                      "label": null,
+                      "logBase": 1,
+                      "max": null,
+                      "min": null,
+                      "show": true
+                    }
+                  ],
+                  "yaxis": {
+                    "align": false,
+                    "alignLevel": null
+                  }
+                }
+              ],
+              "schemaVersion": 26,
+              "style": "dark",
+              "tags": [],
+              "templating": {
+                "list": []
+              },
+              "time": {
+                "from": "now-6h",
+                "to": "now"
+              },
+              "timepicker": {},
+              "timezone": "",
+              "title": "PostgreSQL Overview",
+              "uid": "postgresql-overview",
+              "version": 1
+            }
+        codecourt-services:
+          json: |
+            {
+              "annotations": {
+                "list": [
+                  {
+                    "builtIn": 1,
+                    "datasource": "-- Grafana --",
+                    "enable": true,
+                    "hide": true,
+                    "iconColor": "rgba(0, 211, 255, 1)",
+                    "name": "Annotations & Alerts",
+                    "type": "dashboard"
+                  }
+                ]
+              },
+              "editable": true,
+              "gnetId": null,
+              "graphTooltip": 0,
+              "id": 3,
+              "links": [],
+              "panels": [
+                {
+                  "aliasColors": {},
+                  "bars": false,
+                  "dashLength": 10,
+                  "dashes": false,
+                  "datasource": "Prometheus",
+                  "fieldConfig": {
+                    "defaults": {
+                      "custom": {}
+                    },
+                    "overrides": []
+                  },
+                  "fill": 1,
+                  "fillGradient": 0,
+                  "gridPos": {
+                    "h": 8,
+                    "w": 12,
+                    "x": 0,
+                    "y": 0
+                  },
+                  "hiddenSeries": false,
+                  "id": 2,
+                  "legend": {
+                    "avg": false,
+                    "current": false,
+                    "max": false,
+                    "min": false,
+                    "show": true,
+                    "total": false,
+                    "values": false
+                  },
+                  "lines": true,
+                  "linewidth": 1,
+                  "nullPointMode": "null",
+                  "options": {
+                    "alertThreshold": true
+                  },
+                  "percentage": false,
+                  "pluginVersion": "7.3.7",
+                  "pointradius": 2,
+                  "points": false,
+                  "renderer": "flot",
+                  "seriesOverrides": [],
+                  "spaceLength": 10,
+                  "stack": false,
+                  "steppedLine": false,
+                  "targets": [
+                    {
+                      "expr": "sum(rate(http_requests_total{namespace=\"codecourt\"}[5m])) by (service)",
+                      "interval": "",
+                      "legendFormat": "{{service}}",
+                      "refId": "A"
+                    }
+                  ],
+                  "thresholds": [],
+                  "timeFrom": null,
+                  "timeRegions": [],
+                  "timeShift": null,
+                  "title": "HTTP Request Rate by Service",
+                  "tooltip": {
+                    "shared": true,
+                    "sort": 0,
+                    "value_type": "individual"
+                  },
+                  "type": "graph",
+                  "xaxis": {
+                    "buckets": null,
+                    "mode": "time",
+                    "name": null,
+                    "show": true,
+                    "values": []
+                  },
+                  "yaxes": [
+                    {
+                      "format": "short",
+                      "label": null,
+                      "logBase": 1,
+                      "max": null,
+                      "min": null,
+                      "show": true
+                    },
+                    {
+                      "format": "short",
+                      "label": null,
+                      "logBase": 1,
+                      "max": null,
+                      "min": null,
+                      "show": true
+                    }
+                  ],
+                  "yaxis": {
+                    "align": false,
+                    "alignLevel": null
+                  }
+                }
+              ],
+              "schemaVersion": 26,
+              "style": "dark",
+              "tags": [],
+              "templating": {
+                "list": []
+              },
+              "time": {
+                "from": "now-6h",
+                "to": "now"
+              },
+              "timepicker": {},
+              "timezone": "",
+              "title": "CodeCourt Services",
+              "uid": "codecourt-services",
+              "version": 1
+            }
+  
+  # AlertManager configuration
+  alertmanager:
+    enabled: true
+    config:
+      global:
+        resolve_timeout: 5m
+      route:
+        group_by: ['job']
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 12h
+        receiver: 'null'
+        routes:
+        - match:
+            alertname: Watchdog
+          receiver: 'null'
+      receivers:
+      - name: 'null'
+    persistence:
+      enabled: true
+      storageClassName: standard
+      size: 5Gi
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+  
+  # Node Exporter configuration
+  nodeExporter:
+    enabled: true
+  
+  # kube-state-metrics configuration
+  kubeStateMetrics:
+    enabled: true
   replicaCount: 2
   image:
     repository: nginx
