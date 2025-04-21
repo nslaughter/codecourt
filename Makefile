@@ -9,6 +9,7 @@ CLUSTER_NAME := codecourt
 HELM_CHART_DIR := $(PROJECT_ROOT)/helm/codecourt
 SCRIPTS_DIR := $(PROJECT_ROOT)/scripts
 GO_FILES := $(shell find . -name "*.go" -not -path "./vendor/*" -not -path "./.git/*")
+DASHBOARD_DIR := $(HELM_CHART_DIR)/dashboards
 
 # Go commands
 GO := go
@@ -21,6 +22,9 @@ GOLINT := golangci-lint
 KUBECTL := kubectl
 HELM := helm
 KIND := kind
+
+# Dashboard linting
+DASHBOARD_LINTER := dashboard-linter
 
 # Docker commands
 DOCKER := docker
@@ -37,9 +41,17 @@ deps:
 	$(GOMOD) tidy
 
 .PHONY: lint
-lint:
-	@echo "Running linter..."
+lint: lint-go lint-dashboards
+
+.PHONY: lint-go
+lint-go:
+	@echo "Running Go linter..."
 	$(GOLINT) run ./...
+
+.PHONY: lint-dashboards
+lint-dashboards:
+	@echo "Running Grafana dashboard linter..."
+	$(SCRIPTS_DIR)/lint-dashboards.sh
 
 .PHONY: fmt
 fmt:
@@ -172,7 +184,9 @@ help:
 	@echo "Targets:"
 	@echo "  all               Run lint and tests"
 	@echo "  deps              Install dependencies"
-	@echo "  lint              Run linter"
+	@echo "  lint              Run all linters"
+	@echo "  lint-go           Run Go linter"
+	@echo "  lint-dashboards   Run Grafana dashboard linter"
 	@echo "  fmt               Format code"
 	@echo "  vet               Run go vet"
 	@echo "  test              Run all tests"
