@@ -1,0 +1,48 @@
+{{- if .Values.postgresql.enabled }}
+{{- with (first .Values.postgresql.clusters) }}
+apiVersion: "acid.zalan.do/v1"
+kind: postgresql
+metadata:
+  name: {{ .name }}
+  namespace: {{ .namespace | default $.Release.Namespace }}
+  labels:
+    {{- include "codecourt.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: database
+spec:
+  teamId: {{ .teamId }}
+  numberOfInstances: {{ .numberOfInstances }}
+  version: "14"
+  enableMasterLoadBalancer: {{ .enableMasterLoadBalancer }}
+  enableReplicaLoadBalancer: {{ .enableReplicaLoadBalancer }}
+  
+  postgresql:
+    version: "14"
+    parameters:
+      {{- range $key, $value := .postgresql.parameters }}
+      {{ $key }}: {{ $value | quote }}
+      {{- end }}
+  
+  volume:
+    size: {{ .volume.size }}
+    storageClass: {{ .volume.storageClass }}
+  
+  users:
+    {{- $firstUser := (first .users) }}
+    {{ $firstUser.name }}:
+      - superuser
+      - createdb
+  
+  databases:
+    {{- range $firstUser.databases }}
+    {{ . }}: {{ $firstUser.name }}
+    {{- end }}
+  
+  resources:
+    requests:
+      cpu: {{ .resources.requests.cpu }}
+      memory: {{ .resources.requests.memory }}
+    limits:
+      cpu: {{ .resources.limits.cpu }}
+      memory: {{ .resources.limits.memory }}
+{{- end }}
+{{- end }}

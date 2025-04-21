@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "codecourt.fullname" . }}-problem-service
+  labels:
+    {{- include "codecourt.labels" . | nindent 4 }}
+    app.kubernetes.io/component: problem-service
+spec:
+  type: {{ .Values.problemService.service.type }}
+  ports:
+    - port: {{ .Values.problemService.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "codecourt.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: problem-service

@@ -1,0 +1,336 @@
+# Default values for codecourt.
+# This is a YAML-formatted file.
+
+global:
+  environment: production
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: ""
+
+# Common configurations
+replicaCount: 1
+image:
+  repository: codecourt
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podSecurityContext: {}
+securityContext: {}
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# PostgreSQL Operator configuration
+postgres-operator:
+  enabled: true
+  configurationValues:
+    watched_namespace: "*"  # Watch all namespaces
+    workers: 4
+    resync_period: "30m"
+    repair_period: "5m"
+
+# PostgreSQL cluster configuration
+postgresql:
+  enabled: true
+  clusters:
+    - name: codecourt
+      namespace: ""
+      dockerImage: postgres:14
+      teamId: "codecourt"
+      numberOfInstances: 3
+      enableMasterLoadBalancer: false
+      enableReplicaLoadBalancer: false
+      volume:
+        size: 10Gi
+        storageClass: "standard"
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          cpu: 500m
+          memory: 1Gi
+      users:
+        - name: codecourt
+          password: ""
+          databases:
+            - codecourt_users
+            - codecourt_problems
+            - codecourt_submissions
+            - codecourt_notifications
+      postgresql:
+        parameters:
+          shared_buffers: "256MB"
+          max_connections: "200"
+
+# Strimzi Kafka Operator configuration
+strimzi-kafka-operator:
+  enabled: true
+  watchNamespaces: []
+  # Use specific version for stability
+  defaultImageRegistry: quay.io
+  defaultImageRepository: strimzi
+  defaultImageTag: "0.38.0"
+
+# Kafka cluster configuration
+kafka:
+  enabled: true
+  name: codecourt-kafka
+  namespace: ""
+  replicas: 3
+  resources:
+    requests:
+      memory: 1Gi
+      cpu: 500m
+    limits:
+      memory: 2Gi
+      cpu: 1000m
+  config:
+    offsets.topic.replication.factor: 3
+    transaction.state.log.replication.factor: 3
+    transaction.state.log.min.isr: 2
+    default.replication.factor: 3
+    min.insync.replicas: 2
+    inter.broker.protocol.version: "3.3"
+  storage:
+    type: persistent-claim
+    size: 10Gi
+    deleteClaim: false
+    class: "standard"
+  zookeeper:
+    replicas: 3
+    resources:
+      requests:
+        memory: 512Mi
+        cpu: 250m
+      limits:
+        memory: 1Gi
+        cpu: 500m
+    storage:
+      type: persistent-claim
+      size: 5Gi
+      deleteClaim: false
+      class: "standard"
+  topics:
+    - name: user-events
+      partitions: 3
+      replicas: 3
+      config:
+        retention.ms: 604800000 # 7 days
+    - name: submission-events
+      partitions: 3
+      replicas: 3
+      config:
+        retention.ms: 604800000 # 7 days
+    - name: judging-events
+      partitions: 3
+      replicas: 3
+      config:
+        retention.ms: 604800000 # 7 days
+    - name: problem-events
+      partitions: 3
+      replicas: 3
+      config:
+        retention.ms: 604800000 # 7 days
+
+# API Gateway Service
+apiGateway:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: nginx
+    tag: alpine
+  service:
+    type: ClusterIP
+    port: 8080
+  ingress:
+    enabled: true
+    className: "nginx"
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    hosts:
+      - host: codecourt.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: codecourt-tls
+        hosts:
+          - codecourt.local
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  env:
+    JWT_SECRET: ""
+    JWT_EXPIRY: "24h"
+    REFRESH_EXPIRY: "168h"
+
+# User Service
+userService:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: nginx
+    tag: alpine
+  service:
+    type: ClusterIP
+    port: 8081
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  env:
+    DB_HOST: "codecourt"
+    DB_PORT: "5432"
+    DB_USER: "codecourt"
+    DB_PASSWORD: ""
+    DB_NAME: "codecourt_users"
+    DB_SSLMODE: "require"
+    JWT_SECRET: ""
+    JWT_EXPIRY: "24h"
+    REFRESH_EXPIRY: "168h"
+
+# Problem Service
+problemService:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: nginx
+    tag: alpine
+  service:
+    type: ClusterIP
+    port: 8082
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  env:
+    DB_HOST: "codecourt"
+    DB_PORT: "5432"
+    DB_USER: "codecourt"
+    DB_PASSWORD: ""
+    DB_NAME: "codecourt_problems"
+    DB_SSLMODE: "require"
+    KAFKA_BROKERS: "codecourt-kafka-bootstrap:9092"
+    KAFKA_GROUP_ID: "problem-service"
+    KAFKA_TOPICS: "problem-events"
+
+# Submission Service
+submissionService:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: nginx
+    tag: alpine
+  service:
+    type: ClusterIP
+    port: 8083
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  env:
+    DB_HOST: "codecourt"
+    DB_PORT: "5432"
+    DB_USER: "codecourt"
+    DB_PASSWORD: ""
+    DB_NAME: "codecourt_submissions"
+    DB_SSLMODE: "require"
+    KAFKA_BROKERS: "codecourt-kafka-bootstrap:9092"
+    KAFKA_GROUP_ID: "submission-service"
+    KAFKA_TOPICS: "submission-events"
+
+# Judging Service
+judgingService:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: nginx
+    tag: alpine
+  service:
+    type: ClusterIP
+    port: 8084
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 200m
+      memory: 256Mi
+  securityContext:
+    privileged: false
+    capabilities:
+      add:
+        - NET_ADMIN
+  env:
+    KAFKA_BROKERS: "codecourt-kafka-bootstrap:9092"
+    KAFKA_GROUP_ID: "judging-service"
+    KAFKA_TOPICS: "submission-events"
+    MAX_EXECUTION_TIME: "10000"
+    MAX_MEMORY_USAGE: "512"
+
+# Notification Service
+notificationService:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: nginx
+    tag: alpine
+  service:
+    type: ClusterIP
+    port: 8085
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  env:
+    DB_HOST: "codecourt"
+    DB_PORT: "5432"
+    DB_USER: "codecourt"
+    DB_PASSWORD: ""
+    DB_NAME: "codecourt_notifications"
+    DB_SSLMODE: "require"
+    KAFKA_BROKERS: "codecourt-kafka-bootstrap:9092"
+    KAFKA_GROUP_ID: "notification-service"
+    KAFKA_TOPICS: "user-events,submission-events,judging-events"
+    SMTP_HOST: "smtp.example.com"
+    SMTP_PORT: "587"
+    SMTP_USERNAME: ""
+    SMTP_PASSWORD: ""
+    SMTP_FROM: "noreply@codecourt.io"

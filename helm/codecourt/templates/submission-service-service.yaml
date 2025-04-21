@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "codecourt.fullname" . }}-submission-service
+  labels:
+    {{- include "codecourt.labels" . | nindent 4 }}
+    app.kubernetes.io/component: submission-service
+spec:
+  type: {{ .Values.submissionService.service.type }}
+  ports:
+    - port: {{ .Values.submissionService.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "codecourt.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: submission-service
