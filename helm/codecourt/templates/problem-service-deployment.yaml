@@ -20,6 +20,12 @@ spec:
       labels:
         {{- include "codecourt.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: problem-service
+      annotations:
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8888"
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -41,6 +47,19 @@ spec:
           env:
             - name: SERVER_PORT
               value: "{{ .Values.problemService.service.port }}"
+            # OpenTelemetry configuration
+            - name: OTEL_SERVICE_NAME
+              value: "problem-service"
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "service.namespace=codecourt,service.name=problem-service"
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://{{ include "codecourt.fullname" . }}-otel-collector:4317"
+            - name: OTEL_TRACES_SAMPLER
+              value: "parentbased_traceidratio"
+            - name: OTEL_TRACES_SAMPLER_ARG
+              value: "1.0"
+            - name: OTEL_PROPAGATORS
+              value: "tracecontext,baggage,b3"
             {{- range $key, $value := .Values.problemService.env }}
             - name: {{ $key }}
               valueFrom:
