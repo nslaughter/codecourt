@@ -12,15 +12,19 @@ echo "✅ Helm chart is valid"
 
 # Check if the Jaeger deployment is correctly configured
 echo "Checking Jaeger deployment configuration..."
-grep -q "jaeger:" helm/codecourt/values.yaml || { echo "Jaeger configuration not found in values.yaml"; exit 1; }
-grep -q "enabled: true" helm/codecourt/values.yaml -A 5 | grep -q "jaeger" || { echo "Jaeger is not enabled in values.yaml"; exit 1; }
+if ! grep -A 2 "jaeger:" helm/codecourt/values.yaml | grep -q "enabled: true"; then
+  echo "Jaeger is not enabled in values.yaml"
+  exit 1
+fi
 grep -q "name: {{ include \"codecourt.fullname\" . }}-jaeger" helm/codecourt/templates/jaeger-deployment.yaml || { echo "Jaeger deployment template not found"; exit 1; }
 echo "✅ Jaeger deployment is correctly configured"
 
 # Check if the OpenTelemetry Collector deployment is correctly configured
 echo "Checking OpenTelemetry Collector configuration..."
-grep -q "otelCollector:" helm/codecourt/values.yaml || { echo "OpenTelemetry Collector configuration not found in values.yaml"; exit 1; }
-grep -q "enabled: true" helm/codecourt/values.yaml -A 5 | grep -q "otelCollector" || { echo "OpenTelemetry Collector is not enabled in values.yaml"; exit 1; }
+if ! grep -A 2 "otelCollector:" helm/codecourt/values.yaml | grep -q "enabled: true"; then
+  echo "OpenTelemetry Collector is not enabled in values.yaml"
+  exit 1
+fi
 grep -q "name: {{ include \"codecourt.fullname\" . }}-otel-collector" helm/codecourt/templates/otel-collector-deployment.yaml || { echo "OpenTelemetry Collector deployment template not found"; exit 1; }
 echo "✅ OpenTelemetry Collector is correctly configured"
 
