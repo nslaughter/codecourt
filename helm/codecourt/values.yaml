@@ -393,6 +393,9 @@ otelCollector:
 # Prometheus Monitoring Stack
 kube-prometheus-stack:
   enabled: true
+  # Install CRDs
+  crds:
+    create: true
   # Prometheus specific configuration
   prometheus:
     enabled: true
